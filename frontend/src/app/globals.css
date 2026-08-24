@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #fcf9f0;
+  --color-manila: #ede3cd;
+  --color-kraft: #b9a67f;
+  --color-rule: #e2d6bc;
+  --color-ink: #262119;
+  --color-biro: #2d4fa1;
+  --color-stamp: #bf3b2b;
+  --color-pencil: #6e6555;
+}
+
+@theme inline {
+  --font-display: var(--f-display);
+  --font-body: var(--f-body);
+  --font-mono: var(--f-mono);
+}
+
+@layer base {
+  body {
+    @apply bg-manila text-ink font-body;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-biro;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-display text-[11px] font-semibold uppercase tracking-[0.18em] text-pencil;
+  }
+  .doc-panel {
+    @apply rounded-md border border-kraft bg-paper;
+  }
+  .stamp {
+    @apply inline-block border-[1.5px] px-1.5 py-px font-display text-[10px] font-bold uppercase tracking-[0.14em];
+  }
+  .ledger-input {
+    @apply rounded-none border-0 border-b border-kraft bg-transparent px-0 py-1.5 font-body text-sm text-ink placeholder:text-pencil/60 focus:border-biro focus:outline-none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes stamp-in {
+    0% {
+      transform: scale(1.25) rotate(var(--stamp-tilt, 0deg));
+      opacity: 0;
+    }
+    60% {
+      transform: scale(0.96) rotate(var(--stamp-tilt, 0deg));
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotate(var(--stamp-tilt, 0deg));
+    }
+  }
+  .stamp-animated {
+    animation: stamp-in 0.28s ease-out backwards;
+  }
+}
