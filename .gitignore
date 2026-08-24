@@ -8,6 +8,8 @@ build/
 dist/
 .pytest_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 
 # Node
 node_modules/
