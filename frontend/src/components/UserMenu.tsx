@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { clearToken, get } from "@/lib/api";
 
@@ -9,15 +9,18 @@ type Me = { username: string; role: string; full_name: string | null };
 
 export default function UserMenu() {
   const router = useRouter();
+  const pathname = usePathname();
   const [me, setMe] = useState<Me | null>(null);
+  const onLoginPage = pathname.startsWith("/login");
 
   useEffect(() => {
+    if (onLoginPage) return;
     get<Me>("/auth/me")
       .then(setMe)
       .catch(() => setMe(null));
-  }, []);
+  }, [onLoginPage]);
 
-  if (!me) {
+  if (onLoginPage || !me) {
     return (
       <Link
         href="/login"

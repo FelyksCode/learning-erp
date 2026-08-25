@@ -5,6 +5,26 @@ Format: `### YYYY-MM-DD — short title` with bullet points per change.
 
 ---
 
+## [Fix] Infinite reload loop on localhost:3000 — 2026-08-24
+
+**Symptom:** opening the app in a browser kept refreshing forever.
+
+**Root cause:** the header `UserMenu` probes `GET /api/auth/me` on every page, including
+`/login`. Without a session that returns 401, and the global 401 handler in `lib/api.ts`
+unconditionally did `clearToken()` + full-page redirect to `/login`. So: visit `/login` →
+probe fires → 401 → redirect to `/login` (full reload) → probe fires again → loop.
+
+**Fix:**
+- `lib/api.ts`: the 401 redirect is skipped when already on `/login`
+  (`window.location.pathname` guard) — stale-token redirects from other pages still work.
+- `components/UserMenu.tsx`: skips the `/me` probe entirely on the login page
+  (`usePathname`), showing the "Log in" button immediately.
+
+### Verification
+- eslint + next build clean; frontend image rebuilt; `/login` serves 200 on the running stack.
+
+---
+
 ## [Docs + CI] Containerization documentation & docker build gate — 2026-08-24
 
 - AGENTS.md: added `verify_containers.py` to commands, two new gotchas (backend container migrates
