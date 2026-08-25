@@ -80,6 +80,8 @@ python -m venv .venv                       # first time only
 
 # deploy
 docker compose up --build                  # postgres + backend + frontend (see DEPLOY.md)
+python verify_containers.py                # E2E check against the live stack (stack must be up)
+docker compose down                        # stop; -v also wipes the pgdata volume
 
 # frontend
 cd frontend && npm install && npm run dev            # → http://localhost:3000
@@ -108,6 +110,11 @@ npm run build                              # verify production build after UI ch
   must be inline because they reference next/font runtime vars). Use the named classes
   (bg-paper, text-ink, border-kraft…) instead of raw hexes.
 - Keep `loading.tsx`/`error.tsx` in both route segments; error copy states cause + fix.
+- In Docker the backend container migrates BEFORE uvicorn starts (`alembic upgrade head` in CMD);
+  seeding is guarded on table existence. With `AUTO_CREATE_TABLES=false` never assume tables exist
+  at import/lifespan time — that's what crashed the first real boot (fixed 2026-08-24).
+- `.dockerignore` files are load-bearing: frontend context is ~1.6KB because node_modules/.next are
+  excluded — don't delete them or builds ship 568MB to the daemon.
 
 ## Current status (session recap)
 

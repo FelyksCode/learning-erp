@@ -61,3 +61,14 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build ./backend
+
+      - name: Build frontend image
+        run: docker build --build-arg NEXT_PUBLIC_API_URL=http://localhost:8000/api ./frontend

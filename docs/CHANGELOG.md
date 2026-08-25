@@ -5,6 +5,17 @@ Format: `### YYYY-MM-DD — short title` with bullet points per change.
 
 ---
 
+## [Docs + CI] Containerization documentation & docker build gate — 2026-08-24
+
+- AGENTS.md: added `verify_containers.py` to commands, two new gotchas (backend container migrates
+  before uvicorn — seeding guarded on table existence; `.dockerignore` files are load-bearing),
+  status recap notes the live-stack verification.
+- CI: new `docker` job builds both images on every push/PR, so Dockerfile regressions
+  (like the boot-order bug fixed earlier today) fail the pipeline instead of a future deploy.
+- DEPLOY.md already reflects automatic migrations (updated with the fix); no other doc drift found.
+
+---
+
 ## [Deploy] Docker stack verified live — 2026-08-24
 
 Built and ran the full containerized stack for the first time; found and fixed a real
