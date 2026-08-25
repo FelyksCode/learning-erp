@@ -23,12 +23,11 @@ docker compose up --build
 - Frontend: http://localhost:3000 (API URL baked at build time via `NEXT_PUBLIC_API_URL`, default `http://localhost:8000/api`)
 - Backend API + docs: http://localhost:8000/docs
 - DB: postgres 16, user/pass/db `erp/erp/erp`, data in the `pgdata` volume
-- Migrations run via Alembic — from inside the backend container:
-  ```bash
-  docker compose exec backend alembic upgrade head
-  ```
-- `AUTO_CREATE_TABLES=false` in compose; for a fresh Postgres DB run the command above once.
-  (Dev SQLite keeps auto-create unless `AUTO_CREATE_TABLES=false`.)
+- Migrations run automatically: the backend container's entrypoint executes
+  `alembic upgrade head` before starting uvicorn, then seeds default locations and the
+  **admin / admin** user on first boot. No manual migration step needed.
+- `AUTO_CREATE_TABLES=false` in compose — Alembic is the source of truth in Docker;
+  local SQLite dev keeps auto-create unless `AUTO_CREATE_TABLES=false`.
 
 ### Environment variables
 

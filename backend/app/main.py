@@ -45,12 +45,18 @@ def seed_admin_user(db) -> None:
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    if get_settings().auto_create_tables:
+    settings = get_settings()
+    if settings.auto_create_tables:
         Base.metadata.create_all(bind=engine)
-    with SessionLocal() as db:
-        seed_locations(db)
-        seed_admin_user(db)
-        db.commit()
+
+    from sqlalchemy import inspect
+
+    tables = set(inspect(engine).get_table_names())
+    if {"locations", "users"} <= tables:
+        with SessionLocal() as db:
+            seed_locations(db)
+            seed_admin_user(db)
+            db.commit()
     yield
 
 

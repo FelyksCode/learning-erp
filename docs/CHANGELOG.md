@@ -5,6 +5,30 @@ Format: `### YYYY-MM-DD — short title` with bullet points per change.
 
 ---
 
+## [Deploy] Docker stack verified live — 2026-08-24
+
+Built and ran the full containerized stack for the first time; found and fixed a real
+boot-order bug.
+
+### Fixes
+- **Startup crash on fresh Postgres** (AUTO_CREATE_TABLES=false): lifespan seeded locations
+  before migrations had created any table → app exited, and alembic couldn't run inside it.
+  Fix: backend container CMD now runs `alembic upgrade head` before uvicorn
+  (`sh -c "alembic upgrade head && exec uvicorn …"`), and seeding is guarded — it only runs when
+  `locations` + `users` tables exist (inspect check). Local SQLite dev behavior unchanged.
+- Added `.dockerignore` for backend (.venv/db/tests/scripts) and frontend (node_modules/.next):
+  frontend build context dropped from ~568MB to ~1.6KB.
+
+### Verification (`verify_containers.py`, kept at repo root)
+- `docker compose up -d --build`: postgres healthy via healthcheck → backend migrates + boots →
+  frontend up.
+- Through the live Postgres-backed API: admin login, category+product creation, receive 25 /
+  sell 6 → on-hand 19.00, restock row with reorder point exactly 4×(6/30)+5 = 5.80,
+  audit trail rows present.
+- Frontend serving "The Stock Ledger" UI at localhost:3000.
+
+---
+
 ## [CI] GitHub Actions — 2026-08-24
 
 ### Workflow (`.github/workflows/ci.yml`)
