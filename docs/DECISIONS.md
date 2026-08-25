@@ -431,6 +431,38 @@ wiring bug) and is the industry shape QA grows on.
 (savepoints interact badly with our commit-inside-service design); deleting smoke scripts (kept as
 whole-system regression checks).
 
+## D-030 — Two API base URLs: browser vs server-side rendering
+
+**Date:** 2026-08-24
+**Status:** Accepted
+
+**Decision:** The frontend keeps `NEXT_PUBLIC_API_URL` (build-time, baked into browser bundles,
+default `http://localhost:8000/api`) and gains a runtime-only `API_URL_SERVER` env var read by
+`lib/api-server.ts` exclusively. docker-compose sets `API_URL_SERVER=http://backend:8000/api` for
+the frontend service; local `npm run dev` needs neither variable.
+
+**Why:** Server Components fetch from *inside* the Docker network, where the API is reachable at the
+service hostname, while the user's browser must use localhost. One shared URL cannot serve both —
+`localhost` inside the frontend container resolves to itself (`ECONNREFUSED`, surfaced to users as
+React Flight error #441 because production RSC redacts server exceptions).
+
+**Rule going forward:** any new server-side fetch goes through `api-server.ts`; any new client-side
+call through `lib/api.ts`. Never read `NEXT_PUBLIC_*` in server components for API routing.
+
+## D-031 — Decimal/JSON boundary: coerce once at the component edge
+
+**Date:** 2026-08-24
+**Status:** Accepted
+
+**Decision:** FastAPI returns Decimal as JSON strings ("63.00"). The dashboard coerces every numeric
+field via a single `num()` helper before formatting/comparison/charting; `SalesChart` receives
+already-numbered points. Component prop types stay honest by convention: treat API numerics as
+`number | string` and never call `.toFixed()`/arithmetic on raw response fields.
+
+**Why:** `.toFixed` on a string throws inside a Server Component render, which production React
+redacts to an opaque digest — the hardest class of bug to debug (it shipped past types because the
+interface declared `number`). Coercion at one chokepoint beats scattering `Number()` calls.
+
 
 
 

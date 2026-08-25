@@ -5,6 +5,30 @@ Format: `### YYYY-MM-DD — short title` with bullet points per change.
 
 ---
 
+## [Fix] Dashboard crash on first load (#441) — 2026-08-24
+
+**Symptom:** after login the dashboard showed "The books won't open — Minified React error #441".
+
+**Diagnosis chain:** #441 comes from React Flight's `resolveErrorProd` — production RSC redacts any
+Server Component exception into an opaque digest. Real cause lived in frontend container logs:
+`TypeError: fetch failed … ECONNREFUSED` — `api-server.ts` called `localhost:8000`, which inside
+the Docker network is the frontend container itself, not the backend service. After fixing the URL,
+a second latent crash appeared: `.toFixed()` on Decimal-as-string fields in the restock table.
+
+**Fixes:**
+- `lib/api-server.ts`: new runtime-only `API_URL_SERVER` env var (D-030); compose sets
+  `API_URL_SERVER=http://backend:8000/api` for the frontend service. `NEXT_PUBLIC_API_URL`
+  remains browser-only.
+- `app/page.tsx`: single `num()` coercion helper for every API numeric (D-031) — KPI money values,
+  restock table cells, and chart points mapped to real numbers before reaching Recharts.
+- Debug `console.log`s added during diagnosis removed again.
+
+**Verification:** rebuilt image → authed dashboard server-renders live data ("Restock list" present
+in HTML, 32KB vs 16.8KB shell-only), no digest rows in flight payload; full `verify_containers.py`
+pass (7/7). eslint + next build clean.
+
+---
+
 ## [Fix] Infinite reload loop on localhost:3000 — 2026-08-24
 
 **Symptom:** opening the app in a browser kept refreshing forever.

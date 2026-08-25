@@ -26,8 +26,11 @@ function stampTilt(status: string): string {
   return "0deg";
 }
 
-function money(n: number) {
-  return n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+// Backend serializes Decimal as JSON strings — coerce every numeric field once, here.
+const num = (v: number | string | null | undefined): number => Number(v ?? 0);
+
+function money(n: number | string) {
+  return num(n).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
 }
 
 function Counter({ label, value, hint }: { label: string; value: string; hint?: string }) {
@@ -49,6 +52,11 @@ export default async function DashboardPage() {
   ]);
 
   const needsAttention = restock.filter((r) => r.status === "low" || r.status === "out-of-stock");
+  const points = trend.map((t) => ({
+    date: t.date,
+    qty_sold: num(t.qty_sold),
+    revenue: num(t.revenue),
+  }));
 
   return (
     <div className="space-y-10">
@@ -101,23 +109,23 @@ export default async function DashboardPage() {
                       <span className="mr-2 font-mono text-xs text-pencil">{row.sku}</span>
                       <span className="font-medium text-ink">{row.name}</span>
                     </td>
-                    <td className="px-4 py-2.5 text-right font-mono tabular-nums text-ink">{row.on_hand}</td>
+                    <td className="px-4 py-2.5 text-right font-mono tabular-nums text-ink">{num(row.on_hand)}</td>
                     <td className="px-4 py-2.5 text-right font-mono tabular-nums text-ink">
-                      {row.avg_daily_sales.toFixed(1)}
+                      {num(row.avg_daily_sales).toFixed(1)}
                     </td>
                     <td className="px-4 py-2.5 text-right font-mono tabular-nums text-ink">
-                      {row.days_of_cover == null ? "\u2014" : `${row.days_of_cover.toFixed(0)}d`}
+                      {row.days_of_cover == null ? "\u2014" : `${num(row.days_of_cover).toFixed(0)}d`}
                     </td>
                     <td className="px-4 py-2.5 text-right font-mono tabular-nums text-pencil">
-                      {row.reorder_point.toFixed(0)}
+                      {num(row.reorder_point).toFixed(0)}
                     </td>
                     <td className="px-4 py-2.5 text-right">
-                      {row.suggested_order_qty > 0 ? (
+                      {num(row.suggested_order_qty) > 0 ? (
                         <span
                           className="inline-flex h-8 w-8 -rotate-3 items-center justify-center rounded-full border-[1.5px] border-biro font-mono text-[13px] font-semibold text-biro"
                           title="Suggested order quantity"
                         >
-                          {row.suggested_order_qty}
+                          {num(row.suggested_order_qty)}
                         </span>
                       ) : (
                         <span className="text-pencil">{"\u2014"}</span>
@@ -166,7 +174,7 @@ export default async function DashboardPage() {
       <section aria-label="Sales, last 30 days">
         <p className="eyebrow mb-2">Sales · last 30 days</p>
         <div className="doc-panel h-64 p-4">
-          <SalesChart trend={trend} />
+          <SalesChart trend={points} />
         </div>
       </section>
     </div>

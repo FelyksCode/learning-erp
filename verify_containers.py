@@ -1,10 +1,10 @@
 import json
 import urllib.error
 import urllib.request
-from datetime import date
+from datetime import datetime
 
 BASE = "http://localhost:8000/api"
-RUN = date.today().isoformat().replace("-", "")
+RUN = datetime.now().strftime("%Y%m%d%H%M%S")
 
 
 def call(path, method="GET", payload=None, token=None, form=None):
@@ -23,8 +23,11 @@ def call(path, method="GET", payload=None, token=None, form=None):
         with urllib.request.urlopen(req) as res:
             return res.status, json.loads(res.read())
     except urllib.error.HTTPError as e:
-        body = e.read().decode(errors="replace")
-        raise SystemExit(f"{method} {path} -> HTTP {e.code}: {body[:200]}")
+        raw = e.read().decode(errors="replace")
+        try:
+            return e.code, json.loads(raw)
+        except json.JSONDecodeError:
+            raise SystemExit(f"{method} {path} -> HTTP {e.code}: {raw[:200]}")
 
 
 token = call("/auth/token", "POST", form="username=admin&password=admin")[1]["access_token"]
@@ -64,6 +67,12 @@ print("4. restock analytics:", row["status"], "| reorder point", row["reorder_po
 audit = call("/audit", token=token)[1]
 assert audit["total"] >= 3, audit["total"]
 print("5. audit trail rows:", audit["total"])
+
+req = urllib.request.Request("http://localhost:3000/", headers={"Cookie": f"erp_token={token}"})
+with urllib.request.urlopen(req) as res:
+    html = res.read().decode(errors="replace")
+    assert "Restock list" in html, "dashboard RSC payload missing — server-side fetch to API failed"
+print("7. authed dashboard server-renders live data: OK")
 
 with urllib.request.urlopen("http://localhost:3000/login") as res:
     assert res.status == 200 and b"Stock Ledger" in res.read()

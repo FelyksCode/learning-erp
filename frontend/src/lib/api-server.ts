@@ -1,8 +1,12 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 const TOKEN_KEY = "erp_token";
+
+// Server components run inside a container/network where the API host differs
+// from the browser's view of it — hence the separate runtime-only variable.
+const API =
+  process.env.API_URL_SERVER ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
 export async function apiGet<T>(path: string): Promise<T> {
   const token = (await cookies()).get(TOKEN_KEY)?.value;
