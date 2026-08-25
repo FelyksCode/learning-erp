@@ -5,6 +5,31 @@ Format: `### YYYY-MM-DD — short title` with bullet points per change.
 
 ---
 
+## [CI] GitHub Actions — 2026-08-24
+
+### Workflow (`.github/workflows/ci.yml`)
+- Triggers: push to master/main, all pull requests. Two parallel jobs:
+  - **backend**: pip cache → `pip install -e ".[dev]"` → `ruff check app` →
+    `pytest tests -v --cov=app --cov-report=term` → all five smoke suites, each against a fresh
+    `erp.db` (`rm -f` between runs), output grouped per suite.
+  - **frontend**: npm cache via package-lock → `npm ci` (project `allowScripts` covers gated
+    install scripts; no user-level npmrc exists on runners) → `npm run lint` → `npm run build`.
+- Repo initialized on GitHub (FelyksCode/learning-erp, private) and pushed.
+
+### Lint gate fixes (surfaced by adding eslint to CI)
+- `MastheadMeta`: replaced synchronous setState-in-effect with a requestAnimationFrame update
+  (react-hooks/set-state-in-effect error); date still renders post-mount, hydration suppressed.
+- `UserMenu`: logout now navigates with `router.push("/login")` instead of `window.location.assign`.
+- `lib/api.ts` 401 handler keeps the intentional full reload behind a scoped eslint-disable
+  comment (auth reset must clear all client state).
+- Removed unused `get` import in `AdvisorNote`.
+
+### Verification
+- Local: `npm run lint` → 0 problems; `npm run build` clean. CI result visible in the repo's
+  Actions tab after push 362c690.
+
+---
+
 ## [Post-M5] QA test suite — 2026-08-24
 
 Introduced a layered pytest suite for learning + regression (rationale: DECISIONS D-029).
