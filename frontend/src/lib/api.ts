@@ -78,6 +78,7 @@ async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
     if (res.status === 401 && typeof window !== "undefined") {
       clearToken();
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- full reload is intentional: clears all cached client state after auth loss
       window.location.assign("/login");
     }
     let detail = res.statusText;

@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { clearToken, get } from "@/lib/api";
 
 type Me = { username: string; role: string; full_name: string | null };
 
 export default function UserMenu() {
+  const router = useRouter();
   const [me, setMe] = useState<Me | null>(null);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function UserMenu() {
       <button
         onClick={() => {
           clearToken();
-          window.location.assign("/login");
+          router.push("/login");
         }}
         className="font-mono text-xs text-pencil underline decoration-kraft underline-offset-4 hover:text-stamp hover:decoration-stamp"
       >

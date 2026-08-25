@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { get, post, type AIInsights } from "@/lib/api";
+import { post, type AIInsights } from "@/lib/api";
 
 export default function AdvisorNote({ initial }: { initial: AIInsights }) {
   const [ai, setAi] = useState<AIInsights>(initial);
