@@ -65,7 +65,7 @@ export default function ProductForm() {
             placeholder="What you call it on the shelf"
           />
         </Field>
-        <Field label="Cost">
+        <Field label="Cost (Rp)">
           <input
             type="number"
             step="0.01"
@@ -76,7 +76,7 @@ export default function ProductForm() {
             placeholder="0.00"
           />
         </Field>
-        <Field label="Price">
+        <Field label="Price (Rp)">
           <input
             type="number"
             step="0.01"

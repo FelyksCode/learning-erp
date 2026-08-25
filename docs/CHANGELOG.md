@@ -5,6 +5,25 @@ Format: `### YYYY-MM-DD — short title` with bullet points per change.
 
 ---
 
+## [UI] Currency switched to Rupiah — 2026-08-24
+
+- New `frontend/src/lib/format.ts`: single `formatRupiah()` using
+  `Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })`
+  (→ "Rp 1.234.567"); accepts number|string and coerces via Number(), consistent with D-031.
+- Dashboard KPI counters + chart revenue tooltip now use `formatRupiah` (previously two separate
+  USD formatters in page.tsx and SalesChart.tsx — deduplicated).
+- Products page: Cost/Price column headers and intake-form labels labeled "(Rp)".
+- Backend untouched by design: amounts are plain Decimal without a currency concept (D-014/D-016);
+  display formatting stays a frontend concern.
+
+Verification: eslint + next build clean; rebuilt container; authed dashboard HTML contains
+server-rendered "Rp …" values.
+
+Note: seeded demo prices remain dollar-magnitude (e.g. 0.40); enter real rupiah prices per product
+or re-seed with adjusted values if you want realistic magnitudes.
+
+---
+
 ## [Fix] Dashboard crash on first load (#441) — 2026-08-24
 
 **Symptom:** after login the dashboard showed "The books won't open — Minified React error #441".

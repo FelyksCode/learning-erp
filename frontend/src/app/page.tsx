@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import AdvisorNote from "@/components/AdvisorNote";
 import SalesChart from "@/components/SalesChart";
 import { apiGet } from "@/lib/api-server";
+import { formatRupiah } from "@/lib/format";
 import type { AIInsights, Overview, RestockRow, TrendPoint } from "@/lib/api";
 
 const STAMP_WORDS: Record<string, string> = {
@@ -28,10 +29,6 @@ function stampTilt(status: string): string {
 
 // Backend serializes Decimal as JSON strings — coerce every numeric field once, here.
 const num = (v: number | string | null | undefined): number => Number(v ?? 0);
-
-function money(n: number | string) {
-  return num(n).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
-}
 
 function Counter({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
@@ -64,14 +61,14 @@ export default async function DashboardPage() {
         <p className="eyebrow mb-2">Today at a glance</p>
         <div className="doc-panel grid grid-cols-2 divide-x divide-y divide-rule md:grid-cols-5 md:divide-y-0">
           <Counter label="Active SKUs" value={String(overview.active_products)} />
-          <Counter label="Stock value" value={money(overview.stock_value)} hint="at cost" />
+          <Counter label="Stock value" value={formatRupiah(overview.stock_value)} hint="at cost" />
           <Counter
             label="To review"
             value={String(overview.low_stock_count)}
             hint={`${overview.out_of_stock_count} out of stock`}
           />
-          <Counter label="Revenue today" value={money(overview.revenue_today)} />
-          <Counter label="Revenue 30d" value={money(overview.revenue_30d)} hint={`7d · ${money(overview.revenue_7d)}`} />
+          <Counter label="Revenue today" value={formatRupiah(overview.revenue_today)} />
+          <Counter label="Revenue 30d" value={formatRupiah(overview.revenue_30d)} hint={`7d · ${formatRupiah(overview.revenue_7d)}`} />
         </div>
       </section>
 

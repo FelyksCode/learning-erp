@@ -20,8 +20,8 @@ export default async function ProductsPage() {
             <tr className="border-b border-kraft text-left">
               <th className="eyebrow px-4 pb-2 pt-3">SKU</th>
               <th className="eyebrow px-4 pb-2 pt-3">Name</th>
-              <th className="eyebrow px-4 pb-2 pt-3 text-right">Cost</th>
-              <th className="eyebrow px-4 pb-2 pt-3 text-right">Price</th>
+              <th className="eyebrow px-4 pb-2 pt-3 text-right">Cost (Rp)</th>
+              <th className="eyebrow px-4 pb-2 pt-3 text-right">Price (Rp)</th>
               <th className="eyebrow px-4 pb-2 pt-3 text-right">On hand</th>
               <th className="eyebrow px-4 pb-2 pt-3 text-right">Actions</th>
             </tr>

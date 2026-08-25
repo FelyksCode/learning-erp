@@ -10,10 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import type { TrendPoint } from "@/lib/api";
-
-function money(n: number) {
-  return n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
-}
+import { formatRupiah } from "@/lib/format";
 
 export default function SalesChart({ trend }: { trend: TrendPoint[] }) {
   if (trend.length === 0) {
@@ -60,7 +57,7 @@ export default function SalesChart({ trend }: { trend: TrendPoint[] }) {
             fontFamily: "var(--f-mono)",
           }}
           formatter={(value, name) =>
-            name === "revenue" ? [money(Number(value)), "Revenue"] : [Number(value), "Units"]
+            name === "revenue" ? [formatRupiah(Number(value)), "Revenue"] : [Number(value), "Units"]
           }
         />
         <Area
